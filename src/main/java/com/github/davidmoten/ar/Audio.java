@@ -70,9 +70,8 @@ public class Audio {
 				e.printStackTrace();
 			}
 			if (nBytesRead >= 0) {
-				int nBytesWritten = line.write(abData, 0, nBytesRead);
+				line.write(abData, 0, nBytesRead);
 			}
-
 		}
 
 		// close the line
