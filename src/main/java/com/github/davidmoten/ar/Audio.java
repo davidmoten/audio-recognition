@@ -95,24 +95,7 @@ public class Audio {
 		// Get Audio Format information
 		AudioFormat audioFormat = audioInputStream.getFormat();
 
-		// Calculate the sample rate
-		float sample_rate = audioFormat.getSampleRate();
-		System.out.println("sample rate = " + sample_rate);
-
-		// Calculate the length in seconds of the sample
-		float T = audioInputStream.getFrameLength()
-				/ audioFormat.getFrameRate();
-		System.out
-				.println("T = " + T + " (length of sampled sound in seconds)");
-
-		// Calculate the number of equidistant points in time
-		int num = (int) (T * sample_rate) / 2;
-		System.out.println("n = " + num + " (number of equidistant points)");
-
-		// Calculate the time interval at each equidistant point
-		float h = (T / num);
-		System.out.println("h = " + h
-				+ " (length of each time interval in seconds)");
+		printAudioDetails(audioInputStream, audioFormat);
 
 		// Write the sound to an array of bytes
 		int nBytesRead = 0;
@@ -123,7 +106,7 @@ public class Audio {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			if (nBytesRead > 0 && nBytesRead == abData.length) {
+			if (nBytesRead > 0) {
 
 				// Determine the original Endian encoding format
 				boolean isBigEndian = audioFormat.isBigEndian();
@@ -153,11 +136,32 @@ public class Audio {
 						value = b1 + (b2 << 8);
 					x[i / 2] = new Complex(value, 0);
 				}
-				FFT.fft(x);
 			}
 
 		}
 
+	}
+
+	private static void printAudioDetails(AudioInputStream audioInputStream,
+			AudioFormat audioFormat) {
+		// Calculate the sample rate
+		float sample_rate = audioFormat.getSampleRate();
+		System.out.println("sample rate = " + sample_rate);
+
+		// Calculate the length in seconds of the sample
+		float T = audioInputStream.getFrameLength()
+				/ audioFormat.getFrameRate();
+		System.out
+				.println("T = " + T + " (length of sampled sound in seconds)");
+
+		// Calculate the number of equidistant points in time
+		int num = (int) (T * sample_rate) / 2;
+		System.out.println("n = " + num + " (number of equidistant points)");
+
+		// Calculate the time interval at each equidistant point
+		float h = (T / num);
+		System.out.println("h = " + h
+				+ " (length of each time interval in seconds)");
 	}
 
 }
