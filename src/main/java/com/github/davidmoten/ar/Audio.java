@@ -78,24 +78,6 @@ public class Audio {
 		line.drain();
 		line.close();
 
-		// Calculate the sample rate
-		float sample_rate = audioFormat.getSampleRate();
-		System.out.println("sample rate = " + sample_rate);
-
-		// Calculate the length in seconds of the sample
-		float T = audioInputStream.getFrameLength()
-				/ audioFormat.getFrameRate();
-		System.out
-				.println("T = " + T + " (length of sampled sound in seconds)");
-
-		// Calculate the number of equidistant points in time
-		int n = (int) (T * sample_rate) / 2;
-		System.out.println("n = " + n + " (number of equidistant points)");
-
-		// Calculate the time interval at each equidistant point
-		float h = (T / n);
-		System.out.println("h = " + h
-				+ " (length of each time interval in seconds)");
 	}
 
 	public static void read(InputStream is) {
@@ -112,6 +94,25 @@ public class Audio {
 
 		// Get Audio Format information
 		AudioFormat audioFormat = audioInputStream.getFormat();
+
+		// Calculate the sample rate
+		float sample_rate = audioFormat.getSampleRate();
+		System.out.println("sample rate = " + sample_rate);
+
+		// Calculate the length in seconds of the sample
+		float T = audioInputStream.getFrameLength()
+				/ audioFormat.getFrameRate();
+		System.out
+				.println("T = " + T + " (length of sampled sound in seconds)");
+
+		// Calculate the number of equidistant points in time
+		int num = (int) (T * sample_rate) / 2;
+		System.out.println("n = " + num + " (number of equidistant points)");
+
+		// Calculate the time interval at each equidistant point
+		float h = (T / num);
+		System.out.println("h = " + h
+				+ " (length of each time interval in seconds)");
 
 		// Write the sound to an array of bytes
 		int nBytesRead = 0;
