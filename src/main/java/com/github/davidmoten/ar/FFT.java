@@ -19,38 +19,38 @@ public class FFT {
 
 	// compute the FFT of x[], assuming its length is a power of 2
 	public static Complex[] fft(Complex[] x) {
-		int N = x.length;
+		int n = x.length;
 
 		// base case
-		if (N == 1)
+		if (n == 1)
 			return new Complex[] { x[0] };
 
 		// radix 2 Cooley-Tukey FFT
-		if (N % 2 != 0) {
+		if (n % 2 != 0) {
 			throw new RuntimeException("N is not a power of 2");
 		}
 
 		// fft of even terms
-		Complex[] even = new Complex[N / 2];
-		for (int k = 0; k < N / 2; k++) {
+		Complex[] even = new Complex[n / 2];
+		for (int k = 0; k < n / 2; k++) {
 			even[k] = x[2 * k];
 		}
 		Complex[] q = fft(even);
 
 		// fft of odd terms
 		Complex[] odd = even; // reuse the array
-		for (int k = 0; k < N / 2; k++) {
+		for (int k = 0; k < n / 2; k++) {
 			odd[k] = x[2 * k + 1];
 		}
 		Complex[] r = fft(odd);
 
 		// combine
-		Complex[] y = new Complex[N];
-		for (int k = 0; k < N / 2; k++) {
-			double kth = -2 * k * Math.PI / N;
+		Complex[] y = new Complex[n];
+		for (int k = 0; k < n / 2; k++) {
+			double kth = -2 * k * Math.PI / n;
 			Complex wk = new Complex(Math.cos(kth), Math.sin(kth));
 			y[k] = q[k].plus(wk.times(r[k]));
-			y[k + N / 2] = q[k].minus(wk.times(r[k]));
+			y[k + n / 2] = q[k].minus(wk.times(r[k]));
 		}
 		return y;
 	}
@@ -126,16 +126,6 @@ public class FFT {
 		return cconvolve(a, b);
 	}
 
-	// display an array of Complex numbers to standard output
-	public static void show(Complex[] x, String title) {
-		System.out.println(title);
-		System.out.println("-------------------");
-		for (int i = 0; i < x.length; i++) {
-			System.out.println(x[i]);
-		}
-		System.out.println();
-	}
-
 	/*********************************************************************
 	 * Test client and sample execution
 	 * 
@@ -162,33 +152,5 @@ public class FFT {
 	 * 2.1934338938072244E-18i 4.01805098805014E-17i
 	 * 
 	 *********************************************************************/
-
-	public static void main(String[] args) {
-		int N = 128;
-		Complex[] x = new Complex[N];
-
-		// original data
-		for (int i = 0; i < N; i++) {
-			x[i] = new Complex(i, 0);
-			x[i] = new Complex(-2 * Math.random() + 1, 0);
-		}
-		show(x, "x");
-
-		// FFT of original data
-		Complex[] y = fft(x);
-		show(y, "y = fft(x)");
-
-		// take inverse FFT
-		Complex[] z = ifft(y);
-		show(z, "z = ifft(y)");
-
-		// circular convolution of x with itself
-		Complex[] c = cconvolve(x, x);
-		show(c, "c = cconvolve(x, x)");
-
-		// linear convolution of x with itself
-		Complex[] d = convolve(x, x);
-		show(d, "d = convolve(x, x)");
-	}
 
 }
