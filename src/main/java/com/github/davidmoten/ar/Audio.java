@@ -66,43 +66,12 @@ public class Audio {
 		while (nBytesRead != -1) {
 			try {
 				nBytesRead = audioInputStream.read(abData, 0, abData.length);
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			if (nBytesRead >= 0) {
 				int nBytesWritten = line.write(abData, 0, nBytesRead);
 			}
-
-			// Determine the original Endian encoding format
-			boolean isBigEndian = audioFormat.isBigEndian();
-
-			int n = nBytesRead / 2;
-
-			// this array is the value of the signal at time i*h
-			Complex x[] = new Complex[n];
-
-			// convert each pair of byte values from the byte array to an Endian
-			// value
-			for (int i = 0; i < n * 2; i += 2) {
-				int b1 = abData[i];
-				int b2 = abData[i + 1];
-				if (b1 < 0)
-					b1 += 0x100;
-				if (b2 < 0)
-					b2 += 0x100;
-
-				int value;
-
-				// Store the data based on the original Endian encoding format
-				if (!isBigEndian)
-					value = (b1 << 8) + b2;
-				else
-					value = b1 + (b2 << 8);
-				x[i / 2] = new Complex(value, 0);
-			}
-
-			FFT.fft(x);
 
 		}
 
