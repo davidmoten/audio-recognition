@@ -136,6 +136,13 @@ public class Complex {
 		return sum;
 	}
 
+	public static Complex[] toComplex(double[] x) {
+		Complex[] result = new Complex[x.length];
+		for (int i = 0; i < x.length; i++)
+			result[i] = new Complex(x[i], 0);
+		return result;
+	}
+
 	// sample client for testing
 	public static void main(String[] args) {
 		Complex a = new Complex(5.0, 6.0);
