@@ -28,7 +28,7 @@ public class AudioTest {
 
 			@Override
 			public List<Double> call(List<Integer> signal) {
-				if (signal.size() == 1024) {
+				if (signal.size() == 256) {
 					Complex[] spectrum = FFT.fft(Complex.toComplex(signal));
 					ArrayList<Double> list = new ArrayList<Double>(
 							spectrum.length);
@@ -42,7 +42,11 @@ public class AudioTest {
 		};
 		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
 		// buffer
-				.buffer(1024).map(toFft).subscribe();
+				.buffer(256)
+				// extract frequencies
+				.map(toFft)
+				// go
+				.subscribe();
 		;
 	}
 }
