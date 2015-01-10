@@ -18,17 +18,17 @@ public class AudioTest {
 				.readSignal(
 						AudioTest.class.getResourceAsStream("/alphabet.wav"))
 				.count().toBlocking().single();
-		System.out.println("count=" + count);
 		assertEquals(296934, count);
 	}
 
 	@Test
 	public void testReadUsingObservableAndFft() {
+		final int bufferSize = 256;
 		Func1<List<Integer>, List<Double>> toFft = new Func1<List<Integer>, List<Double>>() {
 
 			@Override
 			public List<Double> call(List<Integer> signal) {
-				if (signal.size() == 256) {
+				if (signal.size() == bufferSize) {
 					Complex[] spectrum = FFT.fft(Complex.toComplex(signal));
 					ArrayList<Double> list = new ArrayList<Double>(
 							spectrum.length);
@@ -42,8 +42,8 @@ public class AudioTest {
 		};
 		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
 		// buffer
-				.buffer(256)
-				// extract frequencies
+				.buffer(bufferSize)
+				// extract frequenciess
 				.map(toFft)
 				// go
 				.subscribe();
