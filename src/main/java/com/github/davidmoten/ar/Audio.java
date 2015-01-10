@@ -25,9 +25,10 @@ public class Audio {
 		AudioInputStream audioInputStream = null;
 		try {
 			audioInputStream = AudioSystem.getAudioInputStream(is);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+		} catch (UnsupportedAudioFileException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 
 		// Get Audio Format information
@@ -41,11 +42,7 @@ public class Audio {
 			line = (SourceDataLine) AudioSystem.getLine(info);
 			line.open(audioFormat);
 		} catch (LineUnavailableException e) {
-			e.printStackTrace();
-			System.exit(1);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 
 		// Start playing the sound
@@ -77,73 +74,55 @@ public class Audio {
 
 			@Override
 			public void call(Subscriber<? super Integer> sub) {
-				// Load the Audio Input Stream from the file
-				AudioInputStream audioInputStream = null;
 				try {
-					audioInputStream = AudioSystem.getAudioInputStream(is);
-				} catch (UnsupportedAudioFileException e) {
-					sub.onError(e);
-					return;
-				} catch (IOException e) {
-					sub.onError(e);
-					return;
-				}
+					// Load the Audio Input Stream from the file
+					AudioInputStream audioInputStream = AudioSystem
+							.getAudioInputStream(is);
 
-				// Get Audio Format information
-				AudioFormat audioFormat = audioInputStream.getFormat();
+					// Get Audio Format information
+					AudioFormat audioFormat = audioInputStream.getFormat();
 
-				printAudioDetails(audioInputStream, audioFormat);
+					// log details
+					printAudioDetails(audioInputStream, audioFormat);
 
-				// Write the sound to an array of bytes
-				int nBytesRead = 0;
-				byte[] abData = new byte[8192];
-				while (nBytesRead != -1 && !sub.isUnsubscribed()) {
-					try {
-						nBytesRead = audioInputStream.read(abData, 0,
-								abData.length);
-					} catch (IOException e) {
-						sub.onError(e);
-						return;
-					}
-					if (nBytesRead > 0) {
-
+					// Write the sound to an array of bytes
+					int bytesRead = 0;
+					byte[] data = new byte[8192];
+					while (!sub.isUnsubscribed() && bytesRead != -1) {
+						bytesRead = audioInputStream.read(data, 0, data.length);
 						// Determine the original Endian encoding format
 						boolean isBigEndian = audioFormat.isBigEndian();
-
-						int n = nBytesRead / 2;
-
-						// convert each pair of byte values from the byte array
-						// to an
-						// Endian value
+						int n = bytesRead / 2;
+						// convert each pair of byte values from the byte
+						// array to an Endian value
 						for (int i = 0; i < n * 2; i += 2) {
-							int b1 = abData[i];
-							int b2 = abData[i + 1];
-							if (b1 < 0)
-								b1 += 0x100;
-							if (b2 < 0)
-								b2 += 0x100;
-
-							int value;
-
-							// Store the data based on the original Endian
-							// encoding
-							// format
-							if (!isBigEndian)
-								value = (b1 << 8) + b2;
-							else
-								value = b1 + (b2 << 8);
+							int value = valueFromTwoBytesEndian(data[i],
+									data[i + 1], isBigEndian);
 							if (sub.isUnsubscribed())
 								return;
 							else
 								sub.onNext(value);
 						}
 					}
+					sub.onCompleted();
+				} catch (Exception e) {
+					sub.onError(e);
 				}
-				sub.onCompleted();
 			}
 
 		});
+	}
 
+	private static int valueFromTwoBytesEndian(int b1, int b2,
+			boolean isBigEndian) {
+		if (b1 < 0)
+			b1 += 0x100;
+		if (b2 < 0)
+			b2 += 0x100;
+		if (!isBigEndian)
+			return (b1 << 8) + b2;
+		else
+			return b1 + (b2 << 8);
 	}
 
 	private static void printAudioDetails(AudioInputStream audioInputStream,
