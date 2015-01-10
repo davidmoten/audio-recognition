@@ -17,58 +17,7 @@ import rx.Subscriber;
 
 public class Audio {
 
-	private static final int BUFFER_SIZE = 1024;
-
-	public static void play(InputStream is) {
-
-		// Load the Audio Input Stream from the file
-		AudioInputStream audioInputStream = null;
-		try {
-			audioInputStream = AudioSystem.getAudioInputStream(is);
-		} catch (UnsupportedAudioFileException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		// Get Audio Format information
-		AudioFormat audioFormat = audioInputStream.getFormat();
-
-		// Handle opening the line
-		SourceDataLine line = null;
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class,
-				audioFormat);
-		try {
-			line = (SourceDataLine) AudioSystem.getLine(info);
-			line.open(audioFormat);
-		} catch (LineUnavailableException e) {
-			throw new RuntimeException(e);
-		}
-
-		// Start playing the sound
-		line.start();
-
-		// Write the sound to an array of bytes
-		int nBytesRead = 0;
-		byte[] abData = new byte[BUFFER_SIZE];
-		while (nBytesRead != -1) {
-			try {
-				nBytesRead = audioInputStream.read(abData, 0, abData.length);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if (nBytesRead >= 0) {
-				line.write(abData, 0, nBytesRead);
-			}
-		}
-
-		// close the line
-		line.drain();
-		line.close();
-
-	}
-
-	public static Observable<Integer> read(final InputStream is) {
+	public static Observable<Integer> readSignal(final InputStream is) {
 
 		return Observable.create(new OnSubscribe<Integer>() {
 
@@ -86,10 +35,11 @@ public class Audio {
 					printAudioDetails(audioInputStream, audioFormat);
 
 					// Write the sound to an array of bytes
-					int bytesRead = 0;
+					int bytesRead;
 					byte[] data = new byte[8192];
-					while (!sub.isUnsubscribed() && bytesRead != -1) {
-						bytesRead = audioInputStream.read(data, 0, data.length);
+					while (!sub.isUnsubscribed()
+							&& (bytesRead = audioInputStream.read(data, 0,
+									data.length)) != -1) {
 						// Determine the original Endian encoding format
 						boolean isBigEndian = audioFormat.isBigEndian();
 						int n = bytesRead / 2;
@@ -145,6 +95,57 @@ public class Audio {
 		float h = (T / num);
 		System.out.println("h = " + h
 				+ " (length of each time interval in seconds)");
+	}
+
+	private static final int BUFFER_SIZE = 1024;
+
+	public static void play(InputStream is) {
+
+		// Load the Audio Input Stream from the file
+		AudioInputStream audioInputStream = null;
+		try {
+			audioInputStream = AudioSystem.getAudioInputStream(is);
+		} catch (UnsupportedAudioFileException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		// Get Audio Format information
+		AudioFormat audioFormat = audioInputStream.getFormat();
+
+		// Handle opening the line
+		SourceDataLine line = null;
+		DataLine.Info info = new DataLine.Info(SourceDataLine.class,
+				audioFormat);
+		try {
+			line = (SourceDataLine) AudioSystem.getLine(info);
+			line.open(audioFormat);
+		} catch (LineUnavailableException e) {
+			throw new RuntimeException(e);
+		}
+
+		// Start playing the sound
+		line.start();
+
+		// Write the sound to an array of bytes
+		int nBytesRead = 0;
+		byte[] abData = new byte[BUFFER_SIZE];
+		while (nBytesRead != -1) {
+			try {
+				nBytesRead = audioInputStream.read(abData, 0, abData.length);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if (nBytesRead >= 0) {
+				line.write(abData, 0, nBytesRead);
+			}
+		}
+
+		// close the line
+		line.drain();
+		line.close();
+
 	}
 
 }
