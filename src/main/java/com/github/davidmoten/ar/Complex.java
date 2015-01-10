@@ -1,5 +1,7 @@
 package com.github.davidmoten.ar;
 
+import java.util.Collection;
+
 /*************************************************************************
  * Compilation: javac Complex.java Execution: java Complex
  * 
@@ -140,6 +142,15 @@ public class Complex {
 		Complex[] result = new Complex[x.length];
 		for (int i = 0; i < x.length; i++)
 			result[i] = new Complex(x[i], 0);
+		return result;
+	}
+
+	public static Complex[] toComplex(Collection<? extends Number> x) {
+		Complex[] result = new Complex[x.size()];
+		int i = 0;
+		for (Number number : x) {
+			result[i] = new Complex(number.doubleValue(), 0);
+		}
 		return result;
 	}
 
