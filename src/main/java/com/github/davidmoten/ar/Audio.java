@@ -165,8 +165,7 @@ public class Audio {
 				Complex x[] = new Complex[n];
 
 				// convert each pair of byte values from the byte array to an
-				// Endian
-				// value
+				// Endian value
 				for (int i = 0; i < n * 2; i += 2) {
 					int b1 = abData[i];
 					int b2 = abData[i + 1];
