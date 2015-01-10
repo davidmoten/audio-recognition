@@ -23,4 +23,5 @@ public class FFTTest {
 		assertEquals(-0.7581365035668999, b[3].re(), PRECISION);
 		assertEquals(-0.08688005256493803, b[3].im(), PRECISION);
 	}
+
 }

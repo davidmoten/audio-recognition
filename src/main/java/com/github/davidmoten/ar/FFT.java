@@ -27,7 +27,7 @@ public class FFT {
 
 		// radix 2 Cooley-Tukey FFT
 		if (n % 2 != 0) {
-			throw new RuntimeException("N is not a power of 2");
+			throw new RuntimeException("n=" + n + " is not a power of 2");
 		}
 
 		// fft of even terms
