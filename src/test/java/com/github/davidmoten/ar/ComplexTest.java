@@ -70,4 +70,11 @@ public class ComplexTest {
 		assertEquals(Math.sqrt(25 + 36), a.abs(), PRECISION);
 	}
 
+	@Test
+	public void testTanValue() {
+		Complex c = b.tan();
+		assertEquals(0.00018734, c.re(), PRECISION);
+		assertEquals(0.99935598738, c.im(), PRECISION);
+	}
+
 }
