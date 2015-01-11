@@ -31,9 +31,9 @@ public class AudioTest {
 
 	@Test
 	public void testReadUsingObservableAndFft() {
-		final BufferedImage image = new BufferedImage(1200, 256,
-				BufferedImage.TYPE_INT_ARGB);
 		final int bufferSize = 256;
+		final BufferedImage image = new BufferedImage(1200, bufferSize,
+				BufferedImage.TYPE_INT_ARGB);
 		Func1<List<Integer>, List<Double>> toFft = new Func1<List<Integer>, List<Double>>() {
 
 			@Override
@@ -83,10 +83,12 @@ public class AudioTest {
 				for (List<Double> list : all) {
 					int freq = 0;
 					for (double d : list) {
-						double prop = (float) (d - min) / max;
-						Color color = toColor(d);
+						double prop = Math.max(0,
+								Math.min(1.0, (d - min) / max * 30));
+						Color color = toColor(prop);
 						g.setColor(color);
-						g.fillRect(sample, freq, 1, 1);
+						g.fillRect(sample,
+								(freq + list.size() / 2) % list.size(), 1, 1);
 						freq++;
 					}
 					sample += 1;
