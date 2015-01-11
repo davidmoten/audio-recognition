@@ -2,11 +2,16 @@ package com.github.davidmoten.ar;
 
 import static org.junit.Assert.assertEquals;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.junit.Test;
 
@@ -55,6 +60,10 @@ public class AudioTest {
 		;
 	}
 
+	private static Color toColor(double d) {
+		return Color.getHSBColor(1f - (float) d, 1f, (float) d * 0.5f);
+	}
+
 	private static Action1<List<List<Double>>> draw(final BufferedImage image) {
 		return new Action1<List<List<Double>>>() {
 			@Override
@@ -69,6 +78,24 @@ public class AudioTest {
 						if (max == null || max < d)
 							max = d;
 					}
+				int sample = 0;
+
+				for (List<Double> list : all) {
+					int freq = 0;
+					for (double d : list) {
+						double prop = (float) (d - min) / max;
+						Color color = toColor(d);
+						g.setColor(color);
+						g.fillRect(sample, freq, 1, 1);
+						freq++;
+					}
+					sample += 1;
+				}
+				try {
+					ImageIO.write(image, "png", new File("target/image.png"));
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		};
 	}
