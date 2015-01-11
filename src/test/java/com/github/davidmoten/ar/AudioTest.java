@@ -61,7 +61,7 @@ public class AudioTest {
 	}
 
 	private static Color toColor(double d) {
-		return Color.getHSBColor(1f - (float) d, 1f, (float) d * 0.5f);
+		return Color.getHSBColor(1f - (float) d, 1f, (float) d * 0.8f);
 	}
 
 	private static Action1<List<List<Double>>> draw(final BufferedImage image) {
@@ -73,18 +73,19 @@ public class AudioTest {
 				Double max = null;
 				for (List<Double> list : all)
 					for (double d : list) {
-						if (min == null || min > d)
-							min = d;
-						if (max == null || max < d)
-							max = d;
+						double dlog = Math.max(0, Math.log(d));
+						if (min == null || min > dlog)
+							min = dlog;
+						if (max == null || max < dlog)
+							max = dlog;
 					}
 				int sample = 0;
 
 				for (List<Double> list : all) {
 					int freq = 0;
 					for (double d : list) {
-						double prop = Math.max(0,
-								Math.min(1.0, (d - min) / max * 30));
+						double prop = Math.max(0, Math.min(1.0,
+								(Math.log(d) - min) / (max - min)));
 						Color color = toColor(prop);
 						g.setColor(color);
 						g.fillRect(sample,
