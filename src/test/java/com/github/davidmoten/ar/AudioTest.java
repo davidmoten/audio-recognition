@@ -62,7 +62,13 @@ public class AudioTest {
 				Graphics2D g = image.createGraphics();
 				Double min = null;
 				Double max = null;
-
+				for (List<Double> list : all)
+					for (double d : list) {
+						if (min == null || min > d)
+							min = d;
+						if (max == null || max < d)
+							max = d;
+					}
 			}
 		};
 	}
