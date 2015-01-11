@@ -2,12 +2,15 @@ package com.github.davidmoten.ar;
 
 import static org.junit.Assert.assertEquals;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 public class AudioTest {
@@ -23,6 +26,8 @@ public class AudioTest {
 
 	@Test
 	public void testReadUsingObservableAndFft() {
+		final BufferedImage image = new BufferedImage(1200, 256,
+				BufferedImage.TYPE_INT_ARGB);
 		final int bufferSize = 256;
 		Func1<List<Integer>, List<Double>> toFft = new Func1<List<Integer>, List<Double>>() {
 
@@ -30,11 +35,9 @@ public class AudioTest {
 			public List<Double> call(List<Integer> signal) {
 				if (signal.size() == bufferSize) {
 					Complex[] spectrum = FFT.fft(Complex.toComplex(signal));
-					ArrayList<Double> list = new ArrayList<Double>(
-							spectrum.length);
+					List<Double> list = new ArrayList<Double>(spectrum.length);
 					for (Complex c : spectrum)
 						list.add(c.abs());
-
 					return list;
 				} else
 					return Collections.emptyList();
@@ -45,8 +48,22 @@ public class AudioTest {
 				.buffer(bufferSize)
 				// extract frequenciess
 				.map(toFft)
+				// get all
+				.toList().doOnNext(draw(image))
 				// go
 				.subscribe();
 		;
+	}
+
+	private static Action1<List<List<Double>>> draw(final BufferedImage image) {
+		return new Action1<List<List<Double>>>() {
+			@Override
+			public void call(List<List<Double>> all) {
+				Graphics2D g = image.createGraphics();
+				Double min = null;
+				Double max = null;
+
+			}
+		};
 	}
 }
