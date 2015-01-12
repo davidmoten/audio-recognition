@@ -29,11 +29,15 @@ public class AudioTest {
 		assertEquals(296934, count);
 	}
 
+	private static final int pixelsPerVerticalCell = 1;
+	private static final int pixelsPerHorizontalCell = 8;
+
 	@Test
 	public void testReadUsingObservableAndFft() {
 		final int bufferSize = 256;
-		final BufferedImage image = new BufferedImage(1200, bufferSize,
-				BufferedImage.TYPE_INT_ARGB);
+		final BufferedImage image = new BufferedImage(
+				1200 * pixelsPerHorizontalCell, bufferSize
+						* pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
 		Func1<List<Integer>, List<Double>> toFft = new Func1<List<Integer>, List<Double>>() {
 
 			@Override
@@ -71,14 +75,19 @@ public class AudioTest {
 				Graphics2D g = image.createGraphics();
 				Double min = null;
 				Double max = null;
-				for (List<Double> list : all)
+				for (List<Double> list : all) {
+					boolean isFirst = true;
 					for (double d : list) {
-						double dlog = Math.max(0, Math.log10(d));
-						if (min == null || min > dlog)
-							min = dlog;
-						if (max == null || max < dlog)
-							max = dlog;
+						if (!isFirst) {
+							double dlog = Math.max(0, Math.log10(d));
+							if (min == null || min > dlog)
+								min = dlog;
+							if (max == null || max < dlog)
+								max = dlog;
+						}
+						isFirst = false;
 					}
+				}
 				int sample = 0;
 
 				for (List<Double> list : all) {
@@ -90,8 +99,10 @@ public class AudioTest {
 										/ (max - min)));
 						Color color = toColor(prop);
 						g.setColor(color);
-						g.fillRect(sample,
-								(freq + list.size() / 2) % list.size(), 1, 1);
+						g.fillRect(sample * pixelsPerHorizontalCell,
+								(freq + list.size() / 2) % list.size()
+										* pixelsPerVerticalCell,
+								pixelsPerHorizontalCell, pixelsPerVerticalCell);
 						freq++;
 					}
 					sample += 1;
