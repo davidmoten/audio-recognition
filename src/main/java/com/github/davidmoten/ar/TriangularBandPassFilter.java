@@ -7,9 +7,9 @@ public class TriangularBandPassFilter implements Func1<double[], Double> {
 	private final double[] weight;
 	private final int initialFrequencyIndex;
 
-	public TriangularBandPassFilter(double lowestFrequency, double centreFrequency,
-			double highestFrequency, double startFrequency,
-			double deltaFrequency) {
+	public TriangularBandPassFilter(double lowestFrequency,
+			double centreFrequency, double highestFrequency,
+			double startFrequency, double deltaFrequency) {
 		Preconditions.checkArgument(deltaFrequency > 0);
 		Preconditions.checkArgument(Math.round(highestFrequency
 				- lowestFrequency) > 0);
@@ -17,9 +17,8 @@ public class TriangularBandPassFilter implements Func1<double[], Double> {
 				- lowestFrequency) > 0);
 		Preconditions.checkArgument(Math.round(highestFrequency
 				- centreFrequency) > 0);
-		int numBuckets = (int) Math
-				.round((highestFrequency - lowestFrequency) / deltaFrequency
-						+ 1);
+		int numBuckets = (int) Math.round((highestFrequency - lowestFrequency)
+				/ deltaFrequency + 1);
 		Preconditions.checkArgument(numBuckets > 0);
 
 		double[] weight = new double[numBuckets];
@@ -30,13 +29,12 @@ public class TriangularBandPassFilter implements Func1<double[], Double> {
 				/ (centreFrequency - highestFrequency);
 
 		double f;
-		int bucketIndex=0;
+		int bucketIndex = 0;
 		// compute the weight for each frequency bucket
 		for (f = startFrequency; f <= highestFrequency; f += deltaFrequency) {
-			if (f < centreFrequency) 
-				weight[bucketIndex] = leftGradient
-						* (f - lowestFrequency);
-			else 
+			if (f < centreFrequency)
+				weight[bucketIndex] = leftGradient * (f - lowestFrequency);
+			else
 				weight[bucketIndex] = filterHeight + rightGradient
 						* (f - centreFrequency);
 			bucketIndex++;
@@ -46,13 +44,16 @@ public class TriangularBandPassFilter implements Func1<double[], Double> {
 				/ deltaFrequency);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see rx.functions.Func1#call(java.lang.Object)
 	 * 
 	 * Returns the weighted average of power for the frequencies within the
 	 * confines of this triangular filter pass band.
-	 *
+	 * 
 	 * @parameter signal the power spectrum to be filtered
+	 * 
 	 * @return the weighted average of power
 	 */
 	@Override
