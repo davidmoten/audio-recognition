@@ -1,6 +1,8 @@
 package com.github.davidmoten.ar;
 
-public class TriangularBandPassFilter {
+import rx.functions.Func1;
+
+public class TriangularBandPassFilter implements Func1<double[], Double> {
 
 	private final double[] weight;
 	private final int initialFrequencyIndex;
@@ -8,7 +10,6 @@ public class TriangularBandPassFilter {
 	public TriangularBandPassFilter(double lowestFrequency, double centreFrequency,
 			double highestFrequency, double startFrequency,
 			double deltaFrequency) {
-
 		Preconditions.checkArgument(deltaFrequency > 0);
 		Preconditions.checkArgument(Math.round(highestFrequency
 				- lowestFrequency) > 0);
@@ -16,45 +17,48 @@ public class TriangularBandPassFilter {
 				- lowestFrequency) > 0);
 		Preconditions.checkArgument(Math.round(highestFrequency
 				- centreFrequency) > 0);
-		int numberElementsWeightField = (int) Math
+		int numBuckets = (int) Math
 				.round((highestFrequency - lowestFrequency) / deltaFrequency
 						+ 1);
-		Preconditions.checkArgument(numberElementsWeightField > 0);
+		Preconditions.checkArgument(numBuckets > 0);
 
-		double[] weight = new double[numberElementsWeightField];
-		double filterHeight = 2.0f / (highestFrequency - lowestFrequency);
+		double[] weight = new double[numBuckets];
+		double filterHeight = 2.0 / (highestFrequency - lowestFrequency);
 		double leftGradient = filterHeight
 				/ (centreFrequency - lowestFrequency);
 		double rightGradient = filterHeight
 				/ (centreFrequency - highestFrequency);
 
-		double currentFrequency;
-		int indexFilterWeight;
-		// compute the weight for each frequency bin
-		for (currentFrequency = startFrequency, indexFilterWeight = 0; currentFrequency <= highestFrequency; currentFrequency += deltaFrequency, indexFilterWeight++) {
-			if (currentFrequency < centreFrequency) {
-				weight[indexFilterWeight] = leftGradient
-						* (currentFrequency - lowestFrequency);
+		double f;
+		int bucketIndex=0;
+		// compute the weight for each frequency bucket
+		for (f = startFrequency; f <= highestFrequency; f += deltaFrequency) {
+			if (f < centreFrequency) {
+				weight[bucketIndex] = leftGradient
+						* (f - lowestFrequency);
 			} else {
-				weight[indexFilterWeight] = filterHeight + rightGradient
-						* (currentFrequency - centreFrequency);
+				weight[bucketIndex] = filterHeight + rightGradient
+						* (f - centreFrequency);
 			}
+			bucketIndex++;
 		}
 		this.weight = weight;
 		this.initialFrequencyIndex = (int) Math.round(startFrequency
 				/ deltaFrequency);
 	}
 
-	/**
+	/* (non-Javadoc)
+	 * @see rx.functions.Func1#call(java.lang.Object)
+	 * 
 	 * Returns the weighted average of power for the frequencies within the
 	 * confines of this triangular filter pass band.
 	 *
 	 * @parameter signal the power spectrum to be filtered
 	 * @return the weighted average of power
 	 */
-	public double apply(double[] signal) {
+	@Override
+	public Double call(double[] signal) {
 		double result = 0.0;
-
 		for (int i = 0; i < this.weight.length; i++) {
 			int indexSignal = this.initialFrequencyIndex + i;
 			if (indexSignal < signal.length) {
@@ -63,4 +67,5 @@ public class TriangularBandPassFilter {
 		}
 		return result;
 	}
+
 }
