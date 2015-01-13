@@ -33,13 +33,12 @@ public class TriangularBandPassFilter implements Func1<double[], Double> {
 		int bucketIndex=0;
 		// compute the weight for each frequency bucket
 		for (f = startFrequency; f <= highestFrequency; f += deltaFrequency) {
-			if (f < centreFrequency) {
+			if (f < centreFrequency) 
 				weight[bucketIndex] = leftGradient
 						* (f - lowestFrequency);
-			} else {
+			else 
 				weight[bucketIndex] = filterHeight + rightGradient
 						* (f - centreFrequency);
-			}
 			bucketIndex++;
 		}
 		this.weight = weight;
