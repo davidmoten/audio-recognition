@@ -2,9 +2,6 @@ package com.github.davidmoten.ar;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -150,6 +147,5 @@ public class Audio {
 		line.close();
 
 	}
-
 
 }
