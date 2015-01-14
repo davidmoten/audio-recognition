@@ -20,6 +20,19 @@ import rx.functions.Func1;
 
 public class AudioTest {
 
+	private static Func1<double[], double[]> toFft(final int frameSize) {
+		return new Func1<double[], double[]>() {
+
+			@Override
+			public double[] call(double[] signal) {
+				if (signal.length == frameSize) {
+					return FFT.fftMagnitude(signal);
+				} else
+					return new double[0];
+			}
+		};
+	}
+
 	@Test
 	public void testReadUsingObservable() {
 		int count = Audio
@@ -38,30 +51,45 @@ public class AudioTest {
 		final BufferedImage image = new BufferedImage(
 				1200 * pixelsPerHorizontalCell, frameSize
 						* pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
-		Func1<List<Integer>, List<Double>> toFft = new Func1<List<Integer>, List<Double>>() {
-
-			@Override
-			public List<Double> call(List<Integer> signal) {
-				if (signal.size() == frameSize) {
-					Complex[] spectrum = FFT.fft(Complex.toComplex(signal));
-					List<Double> list = new ArrayList<Double>(spectrum.length);
-					for (Complex c : spectrum)
-						list.add(c.abs());
-					return list;
-				} else
-					return Collections.emptyList();
-			}
-		};
 		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
 		// buffer
-				.buffer(frameSize)
-				// extract frequenciess
-				.map(toFft)
+				.buffer(frameSize).map(Util.TO_DOUBLE_ARRAY)
+				// extract frequencies
+				.map(toFft(frameSize))
+				// to list
+				.map(Util.TO_LIST)
 				// get all
 				.toList().doOnNext(draw(image))
 				// go
 				.subscribe();
-		;
+	}
+
+	@Test
+	public void testAllFilters() {
+		final int frameSize = 256;
+		final BufferedImage image = new BufferedImage(
+				1200 * pixelsPerHorizontalCell, frameSize
+						* pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
+
+		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
+		// get frames
+				.buffer(frameSize)
+				// as array of double
+				.map(Util.TO_DOUBLE_ARRAY)
+				// emphasize higher frequencies
+				.map(new PreEmphasisFunction())
+				// apply filter to handle discontinuities at start and end
+				.map(new HammingWindowFunction())
+				// extract frequencies
+				.map(toFft(frameSize))
+				// to list of double
+				.map(Util.TO_LIST)
+				// get all
+				.toList()
+				// draw png
+				.doOnNext(draw(image))
+				// go
+				.subscribe();
 	}
 
 	private static Color toColor(double d) {

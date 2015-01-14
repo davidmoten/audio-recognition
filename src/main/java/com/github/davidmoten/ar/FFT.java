@@ -1,5 +1,8 @@
 package com.github.davidmoten.ar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*************************************************************************
  * Compilation: javac FFT.java Execution: java FFT N Dependencies: Complex.java
  * 
@@ -16,6 +19,15 @@ package com.github.davidmoten.ar;
  *************************************************************************/
 
 public class FFT {
+	
+	public static double[] fftMagnitude(double[] signal) {
+		Complex[] spectrum = fft(Complex.toComplex(signal));
+		double[] x = new double[spectrum.length];
+		for (int i=0;i<x.length;i++) {
+			x[i]= spectrum[i].abs();
+		}
+		return x;
+	}
 
 	// compute the FFT of x[], assuming its length is a power of 2
 	public static Complex[] fft(Complex[] x) {

@@ -9,6 +9,10 @@ public class HammingWindowFunction implements Func1<double[], double[]> {
 	public HammingWindowFunction(double alpha) {
 		this.alpha = alpha;
 	}
+	
+	public HammingWindowFunction() {
+		this(0.46);
+	}
 
 	@Override
 	public double[] call(double[] x) {
