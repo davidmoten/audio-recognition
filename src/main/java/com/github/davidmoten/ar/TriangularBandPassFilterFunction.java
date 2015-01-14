@@ -2,12 +2,12 @@ package com.github.davidmoten.ar;
 
 import rx.functions.Func1;
 
-public class TriangularBandPassFilter implements Func1<double[], Double> {
+public class TriangularBandPassFilterFunction implements Func1<double[], Double> {
 
 	private final double[] weight;
 	private final int initialFrequencyIndex;
 
-	public TriangularBandPassFilter(double lowestFrequency,
+	public TriangularBandPassFilterFunction(double lowestFrequency,
 			double centreFrequency, double highestFrequency,
 			double startFrequency, double deltaFrequency) {
 		Preconditions.checkArgument(deltaFrequency > 0);
