@@ -13,32 +13,32 @@ import rx.functions.Func1;
  * "http://mirlab.org/jang/books/audiosignalprocessing/speechFeatureMfcc.asp?title=12-2%20MFCC"
  * >here</a>.
  * </p>
- *
+ * 
  */
 public class PreEmphasisFunction implements Func1<double[], double[]> {
 
-	private final double alpha;
+    private final double alpha;
 
-	public PreEmphasisFunction(double alpha) {
-		this.alpha = alpha;
-	}
+    public PreEmphasisFunction(double alpha) {
+        this.alpha = alpha;
+    }
 
-	public PreEmphasisFunction() {
-		this(0.95);
-	}
+    public PreEmphasisFunction() {
+        this(0.95);
+    }
 
-	@Override
-	public double[] call(double[] x) {
-		if (x.length == 0)
-			return new double[0];
-		else {
-			double[] y = new double[x.length];
-			y[0] = x[0];
-			for (int i = 1; i < x.length; i++) {
-				y[i] = x[i] - alpha * x[i - 1];
-			}
-			return y;
-		}
-	}
+    @Override
+    public double[] call(double[] x) {
+        if (x.length == 0)
+            return new double[0];
+        else {
+            double[] y = new double[x.length];
+            y[0] = x[0];
+            for (int i = 1; i < x.length; i++) {
+                y[i] = x[i] - alpha * x[i - 1];
+            }
+            return y;
+        }
+    }
 
 }

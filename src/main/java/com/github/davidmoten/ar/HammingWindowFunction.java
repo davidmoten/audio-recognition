@@ -4,29 +4,27 @@ import rx.functions.Func1;
 
 public class HammingWindowFunction implements Func1<double[], double[]> {
 
-	private double alpha;
+    private double alpha;
 
-	public HammingWindowFunction(double alpha) {
-		this.alpha = alpha;
-	}
-	
-	public HammingWindowFunction() {
-		this(0.46);
-	}
+    public HammingWindowFunction(double alpha) {
+        this.alpha = alpha;
+    }
 
-	@Override
-	public double[] call(double[] x) {
-		if (x.length == 0)
-			return new double[0];
-		else {
-			double[] y = new double[x.length];
-			for (int i = 0; i < x.length; i++) {
-				y[i] = x[i]
-						* ((1 - alpha) - alpha
-								* Math.cos(2 * Math.PI * i / (x.length - 1)));
-			}
-			return y;
-		}
-	}
+    public HammingWindowFunction() {
+        this(0.46);
+    }
+
+    @Override
+    public double[] call(double[] x) {
+        if (x.length == 0)
+            return new double[0];
+        else {
+            double[] y = new double[x.length];
+            for (int i = 0; i < x.length; i++) {
+                y[i] = x[i] * ((1 - alpha) - alpha * Math.cos(2 * Math.PI * i / (x.length - 1)));
+            }
+            return y;
+        }
+    }
 
 }
