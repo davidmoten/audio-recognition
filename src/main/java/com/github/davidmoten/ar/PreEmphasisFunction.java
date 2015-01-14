@@ -17,10 +17,10 @@ import rx.functions.Func1;
  */
 public class PreEmphasisFunction implements Func1<double[], double[]> {
 
-	private final double proportion;
+	private final double alpha;
 
-	public PreEmphasisFunction(double proportion) {
-		this.proportion = proportion;
+	public PreEmphasisFunction(double alpha) {
+		this.alpha = alpha;
 	}
 
 	public PreEmphasisFunction() {
@@ -35,7 +35,7 @@ public class PreEmphasisFunction implements Func1<double[], double[]> {
 			double[] y = new double[x.length];
 			y[0] = x[0];
 			for (int i = 1; i < x.length; i++) {
-				y[i] = x[i] - proportion * x[i - 1];
+				y[i] = x[i] - alpha * x[i - 1];
 			}
 			return y;
 		}

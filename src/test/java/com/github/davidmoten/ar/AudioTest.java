@@ -34,15 +34,15 @@ public class AudioTest {
 
 	@Test
 	public void testReadUsingObservableAndFft() {
-		final int bufferSize = 256;
+		final int frameSize = 256;
 		final BufferedImage image = new BufferedImage(
-				1200 * pixelsPerHorizontalCell, bufferSize
+				1200 * pixelsPerHorizontalCell, frameSize
 						* pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
 		Func1<List<Integer>, List<Double>> toFft = new Func1<List<Integer>, List<Double>>() {
 
 			@Override
 			public List<Double> call(List<Integer> signal) {
-				if (signal.size() == bufferSize) {
+				if (signal.size() == frameSize) {
 					Complex[] spectrum = FFT.fft(Complex.toComplex(signal));
 					List<Double> list = new ArrayList<Double>(spectrum.length);
 					for (Complex c : spectrum)
@@ -54,7 +54,7 @@ public class AudioTest {
 		};
 		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
 		// buffer
-				.buffer(bufferSize)
+				.buffer(frameSize)
 				// extract frequenciess
 				.map(toFft)
 				// get all
