@@ -22,11 +22,11 @@ public class DiscreteCosineTransformFunction implements
 
 	@Override
 	public double[] call(double[] input) {
-		double[] melspectrum = new double[input.length];
-		if (melspectrum.length != numMelFilters) {
+		if (input.length != numMelFilters) {
 			throw new IllegalArgumentException("input should be of length "
 					+ numMelFilters + " but was " + input.length);
 		}
+		double[] melspectrum = new double[input.length];
 		for (int i = 0; i < melspectrum.length; ++i) {
 			melspectrum[i] = Math.log(input[i] + LOG_MINIMUM);
 		}

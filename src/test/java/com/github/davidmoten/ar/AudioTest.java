@@ -68,7 +68,7 @@ public class AudioTest {
 		final BufferedImage image = new BufferedImage(
 				1200 * pixelsPerHorizontalCell, frameSize
 						* pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
-
+		int numTriFilters = 20;
 		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
 		// get frames
 				.buffer(frameSize)
@@ -80,6 +80,11 @@ public class AudioTest {
 				.map(new HammingWindowFunction())
 				// extract frequencies
 				.map(toFft(frameSize))
+				// tri bandpass filter
+				.map(new TriangularBandPassFilterBankFunction(numTriFilters,
+						frameSize))
+				// DCT
+				.map(new DiscreteCosineTransformFunction(12, numTriFilters))
 				// to list of double
 				.map(Util.TO_LIST)
 				// get all

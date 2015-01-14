@@ -16,8 +16,8 @@ public class TriangularBandPassFilterBankFunction implements
 				maxFreq, sampleRate);
 	}
 
-	public TriangularBandPassFilterBankFunction(int inputLength) {
-		this(130, 6800, 40, 16000, inputLength);
+	public TriangularBandPassFilterBankFunction(int numFilters, int inputLength) {
+		this(130, 6800, numFilters, 16000, inputLength);
 	}
 
 	private static TriangularBandPassFilterFunction[] createFilters(
