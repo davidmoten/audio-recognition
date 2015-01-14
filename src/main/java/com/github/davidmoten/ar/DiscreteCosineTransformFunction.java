@@ -22,6 +22,8 @@ public class DiscreteCosineTransformFunction implements
 
 	@Override
 	public double[] call(double[] input) {
+		if (input.length == 0)
+			return new double[0];
 		if (input.length != numMelFilters) {
 			throw new IllegalArgumentException("input should be of length "
 					+ numMelFilters + " but was " + input.length);

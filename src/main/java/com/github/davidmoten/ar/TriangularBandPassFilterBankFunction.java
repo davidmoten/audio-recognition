@@ -23,11 +23,8 @@ public class TriangularBandPassFilterBankFunction implements
 	private static TriangularBandPassFilterFunction[] createFilters(
 			int numberFftPoints, int numberFilters, double minFreq,
 			double maxFreq, int sampleRate) {
-		if (numberFilters < 1)
-			throw new IllegalArgumentException("Number of filters illegal: "
-					+ numberFilters);
-		if (numberFftPoints == 0)
-			throw new IllegalArgumentException("Number of FFT points is zero");
+		Preconditions.checkArgument(numberFilters >= 0);
+		Preconditions.checkArgument(numberFftPoints >= 0);
 
 		TriangularBandPassFilterFunction[] filters = new TriangularBandPassFilterFunction[numberFilters];
 
@@ -68,9 +65,11 @@ public class TriangularBandPassFilterBankFunction implements
 
 	@Override
 	public double[] call(double[] input) {
-		if (input.length != inputLength)
-			throw new IllegalArgumentException("Window size is incorrect");
-
+		Preconditions.checkArgument(input.length == 0
+				|| input.length == inputLength, "Window size is incorrect:"
+				+ input.length);
+		if (input.length == 0)
+			return new double[0];
 		double[] output = new double[filters.length];
 		for (int i = 0; i < output.length; i++) {
 			output[i] = filters[i].call(input);
@@ -87,9 +86,7 @@ public class TriangularBandPassFilterBankFunction implements
 	}
 
 	private static double nearestFrequencyBucket(double inFreq, double stepFreq) {
-		if (stepFreq == 0) {
-			throw new IllegalArgumentException("stepFreq is zero");
-		}
+		Preconditions.checkArgument(stepFreq != 0, "step frequency is zero");
 		return stepFreq * Math.round(inFreq / stepFreq);
 	}
 
