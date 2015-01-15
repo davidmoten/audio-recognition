@@ -1,4 +1,4 @@
-package com.github.davidmoten.ar;
+package com.github.davidmoten.util;
 
 public final class Preconditions {
 

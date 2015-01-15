@@ -2,6 +2,8 @@ package com.github.davidmoten.ar;
 
 import rx.functions.Func1;
 
+import com.github.davidmoten.util.Preconditions;
+
 public class TriangularBandPassFilterBankFunction implements Func1<double[], double[]> {
 
     private final TriangularBandPassFilterFunction[] filters;

@@ -18,15 +18,12 @@ import rx.functions.Func1;
 
 public class AudioTest {
 
-    private static Func1<double[], double[]> toFft(final int frameSize) {
+    private static Func1<double[], double[]> toFft() {
         return new Func1<double[], double[]>() {
 
             @Override
             public double[] call(double[] signal) {
-                if (signal.length == frameSize) {
-                    return FFT.fftMagnitude(signal);
-                } else
-                    return new double[0];
+                return FFT.fftMagnitude(signal);
             }
         };
     }
@@ -48,13 +45,19 @@ public class AudioTest {
                 * pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
         Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
         // buffer
-                .buffer(frameSize).map(Util.TO_DOUBLE_ARRAY)
+                .buffer(frameSize)
+                // full frames only
+                .filter(Util.<Integer> hasSize(frameSize))
+                // to double arrays
+                .map(Util.TO_DOUBLE_ARRAY)
                 // extract frequencies
-                .map(toFft(frameSize))
+                .map(toFft())
                 // to list
                 .map(Util.TO_LIST)
                 // get all
-                .toList().doOnNext(draw(image))
+                .toList()
+                // draw image
+                .doOnNext(draw(image))
                 // go
                 .subscribe();
     }
@@ -62,12 +65,13 @@ public class AudioTest {
     @Test
     public void testAllFilters() {
         final int frameSize = 256;
-        final BufferedImage image = new BufferedImage(1200 * pixelsPerHorizontalCell, frameSize
-                * pixelsPerVerticalCell, BufferedImage.TYPE_INT_ARGB);
         int numTriFilters = 20;
+        int numMfcCoefficients = 12;
         Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
         // get frames
                 .buffer(frameSize)
+                // full frames only
+                .filter(Util.<Integer> hasSize(frameSize))
                 // as array of double
                 .map(Util.TO_DOUBLE_ARRAY)
                 // emphasize higher frequencies
@@ -75,19 +79,27 @@ public class AudioTest {
                 // apply filter to handle discontinuities at start and end
                 .map(new HammingWindowFunction())
                 // extract frequencies
-                .map(toFft(frameSize))
+                .map(toFft())
                 // tri bandpass filter
                 .map(new TriangularBandPassFilterBankFunction(numTriFilters, frameSize))
                 // DCT
-                .map(new DiscreteCosineTransformFunction(12, numTriFilters))
+                .map(new DiscreteCosineTransformFunction(numMfcCoefficients, numTriFilters))
                 // to list of double
                 .map(Util.TO_LIST)
-                // get all
-                .toList()
-                // draw png
-                .doOnNext(draw(image))
+                // print mfcc values
+                .doOnNext(println())
                 // go
                 .subscribe();
+    }
+
+    private <T> Action1<T> println() {
+        return new Action1<T>() {
+
+            @Override
+            public void call(T t) {
+                System.out.println(t);
+            }
+        };
     }
 
     private static Color toColor(double d) {
@@ -132,6 +144,49 @@ public class AudioTest {
                 }
                 try {
                     ImageIO.write(image, "png", new File("target/image.png"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+    private static Action1<List<List<Double>>> draw2(final BufferedImage image) {
+        return new Action1<List<List<Double>>>() {
+            @Override
+            public void call(List<List<Double>> all) {
+                Graphics2D g = image.createGraphics();
+                Double min = null;
+                Double max = null;
+                for (List<Double> list : all) {
+                    boolean isFirst = true;
+                    for (double d : list) {
+                        if (!isFirst) {
+                            if (min == null || min > d)
+                                min = d;
+                            if (max == null || max < d)
+                                max = d;
+                        }
+                        isFirst = false;
+                    }
+                }
+                int sample = 0;
+
+                for (List<Double> list : all) {
+                    int freq = 0;
+                    for (double d : list) {
+                        double prop = Math.max(0, Math.min(1.0, (d - min) / (max - min)));
+                        Color color = toColor(prop);
+                        g.setColor(color);
+                        g.fillRect(sample * pixelsPerHorizontalCell, (freq + list.size() / 2)
+                                % list.size() * pixelsPerVerticalCell, pixelsPerHorizontalCell,
+                                pixelsPerVerticalCell);
+                        freq++;
+                    }
+                    sample += 1;
+                }
+                try {
+                    ImageIO.write(image, "png", new File("target/image2.png"));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

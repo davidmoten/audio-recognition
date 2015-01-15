@@ -30,4 +30,13 @@ public class Util {
         }
     };
 
+    public static <T> Func1<List<T>, Boolean> hasSize(final int size) {
+        return new Func1<List<T>, Boolean>() {
+
+            @Override
+            public Boolean call(List<T> list) {
+                return list.size() == size;
+            }
+        };
+    }
 }
