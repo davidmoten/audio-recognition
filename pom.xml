@@ -87,6 +87,12 @@
 			<artifactId>rxjava</artifactId>
 			<version>${rxjava.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.davidmoten</groupId>
+			<artifactId>fastdtw</artifactId>
+			<version>0.1</version>
+		</dependency>
+		
 		<!-- Test Dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
