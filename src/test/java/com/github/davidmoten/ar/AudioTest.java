@@ -14,19 +14,8 @@ import javax.imageio.ImageIO;
 import org.junit.Test;
 
 import rx.functions.Action1;
-import rx.functions.Func1;
 
 public class AudioTest {
-
-	private static Func1<double[], double[]> toFft() {
-		return new Func1<double[], double[]>() {
-
-			@Override
-			public double[] call(double[] signal) {
-				return FFT.fftMagnitude(signal);
-			}
-		};
-	}
 
 	@Test
 	public void testReadUsingObservable() {
@@ -54,7 +43,7 @@ public class AudioTest {
 				// to double arrays
 				.map(Util.TO_DOUBLE_ARRAY)
 				// extract frequencies
-				.map(toFft())
+				.map(Audio.toFft())
 				// to list
 				.map(Util.TO_LIST)
 				// get all
@@ -67,37 +56,11 @@ public class AudioTest {
 
 	@Test
 	public void testExtractMFCCs() {
-		final int frameSize = 256;
-		int numTriFilters = 26;
-		int numMfcCoefficients = 13;
-		Audio.readSignal(AudioTest.class.getResourceAsStream("/alphabet.wav"))
-		// get frames
-				.buffer(frameSize)
-				// full frames only
-				.filter(Util.<Integer> hasSize(frameSize))
-				// as array of double
-				.map(Util.TO_DOUBLE_ARRAY)
-				// emphasize higher frequencies
-				.map(new PreEmphasisFunction())
-				// apply filter to handle discontinuities at start and end
-				.map(new HammingWindowFunction())
-				// extract frequencies
-				.map(toFft())
-				// tri bandpass filter
-				.map(new TriangularBandPassFilterBankFunction(numTriFilters,
-						frameSize))
-				// DCT
-				.map(new DiscreteCosineTransformFunction(numMfcCoefficients,
-						numTriFilters))
-				// to list of double MFCCs
-				.map(Util.TO_LIST)
-				// print mfcc values
-				.doOnNext(println())
-				// go
+		Audio.timeSeries(AudioTest.class.getResourceAsStream("/A.wav"))
 				.subscribe();
 	}
 
-	private <T> Action1<T> println() {
+	private static <T> Action1<T> println() {
 		return new Action1<T>() {
 
 			@Override
