@@ -15,6 +15,10 @@ import org.junit.Test;
 
 import rx.functions.Action1;
 
+import com.fastdtw.dtw.FastDTW;
+import com.fastdtw.timeseries.TimeSeries;
+import com.fastdtw.util.Distances;
+
 public class AudioTest {
 
 	@Test
@@ -58,6 +62,33 @@ public class AudioTest {
 	public void testExtractMFCCs() {
 		Audio.timeSeries(AudioTest.class.getResourceAsStream("/A.wav"))
 				.subscribe();
+	}
+
+	private static TimeSeries timeSeries(String resource) {
+		return Audio.timeSeries(AudioTest.class.getResourceAsStream(resource))
+				.toBlocking().single();
+	}
+
+	private static double distance(TimeSeries a, TimeSeries b) {
+		return FastDTW.compare(a, b, Distances.EUCLIDEAN_DISTANCE)
+				.getDistance();
+	}
+
+	@Test
+	public void testDtwDifference() {
+		TimeSeries a = timeSeries("/A.wav");
+		TimeSeries a2 = timeSeries("/A2.wav");
+		TimeSeries b = timeSeries("/B.wav");
+		TimeSeries b2 = timeSeries("/B2.wav");
+		TimeSeries c = timeSeries("/C.wav");
+		TimeSeries c2 = timeSeries("/C2.wav");
+		System.out.println(distance(a, a));
+		System.out.println(distance(a, a2));
+		System.out.println(distance(a, b));
+		System.out.println(distance(a, c));
+		System.out.println(distance(a, b2));
+		System.out.println(distance(a, c2));
+
 	}
 
 	private static <T> Action1<T> println() {

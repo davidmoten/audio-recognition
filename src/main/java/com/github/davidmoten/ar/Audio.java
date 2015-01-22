@@ -2,6 +2,7 @@ package com.github.davidmoten.ar;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
@@ -175,11 +176,20 @@ public class Audio {
 				// DCT
 				.map(new DiscreteCosineTransformFunction(numMfcCoefficients,
 						numTriFilters))
+				// drop first mfcc which is volume
+				.map(DROP_FIRST)
 				// make a list of the frame mfccs
 				.toList()
 				// to TimeSeries
 				.map(TO_TIME_SERIES);
 	}
+
+	private static Func1<double[], double[]> DROP_FIRST = new Func1<double[], double[]>() {
+		@Override
+		public double[] call(double[] x) {
+			return Arrays.copyOfRange(x, 1, x.length);
+		}
+	};
 
 	public static Observable<TimeSeries> timeSeries(InputStream wave) {
 		return timeSeries(wave, 256, 26, 13);
