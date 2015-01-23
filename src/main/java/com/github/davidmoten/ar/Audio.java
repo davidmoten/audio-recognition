@@ -146,11 +146,11 @@ public class Audio {
 
     }
 
-    public static Observable<TimeSeries> timeSeries(InputStream wave, int frameSize,
+    public static Observable<TimeSeries> timeSeries(InputStream wave, int frameSize, int skip,
             int numTriFilters, int numMfcCoefficients) {
         return readSignal(wave)
         // get frames
-                .buffer(frameSize)
+                .buffer(frameSize, skip)
                 // full frames only
                 .filter(Util.<Integer> hasSize(frameSize))
                 // as array of double
@@ -194,7 +194,9 @@ public class Audio {
     }
 
     public static Observable<TimeSeries> timeSeries(InputStream wave) {
-        return timeSeries(wave, 256, 26, 13);
+        int frameSize = 256;
+        int skip = 100;
+        return timeSeries(wave, frameSize, 26, 13, skip);
     }
 
     public static Func1<double[], double[]> toFft() {
