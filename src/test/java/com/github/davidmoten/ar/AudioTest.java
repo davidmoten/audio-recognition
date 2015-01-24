@@ -208,4 +208,10 @@ public class AudioTest {
 			}
 		};
 	}
+
+	public static void main(String[] args) {
+		byte[] b = Audio.microphone().first().toBlocking().single();
+		System.out.println(b[0]);
+	}
+
 }

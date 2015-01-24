@@ -31,7 +31,7 @@ public class AudioRecorder {
 	/**
 	 * Defines an audio formats
 	 */
-	AudioFormat getAudioFormat() {
+	AudioFormat createAudioFormat() {
 		float sampleRate = 16000;
 		int sampleSizeInBits = 8;
 		int channels = 2;
@@ -47,7 +47,7 @@ public class AudioRecorder {
 	 */
 	void start() {
 		try {
-			AudioFormat format = getAudioFormat();
+			AudioFormat format = createAudioFormat();
 			DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
 			// checks if system supports the data line
@@ -68,10 +68,10 @@ public class AudioRecorder {
 			// start recording
 			AudioSystem.write(ais, fileType, wavFile);
 
-		} catch (LineUnavailableException ex) {
-			ex.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
+		} catch (LineUnavailableException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
