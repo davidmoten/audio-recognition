@@ -41,9 +41,8 @@ public class MicrophoneOnSubscribe implements OnSubscribe<byte[]> {
 			System.out.println("Starting capture...");
 			line.start();
 			byte[] buffer = new byte[bufferSize];
-			int count = 0;
-			while (!child.isUnsubscribed() && (line.isOpen())
-					&& (count = line.read(buffer, 0, bufferSize)) != -1) {
+			while (!child.isUnsubscribed() && line.isOpen()) {
+				int count = line.read(buffer, 0, bufferSize);
 				if (count > 0)
 					child.onNext(Arrays.copyOf(buffer, count));
 			}
@@ -53,5 +52,4 @@ public class MicrophoneOnSubscribe implements OnSubscribe<byte[]> {
 			child.onError(e);
 		}
 	}
-
 }
