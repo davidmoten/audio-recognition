@@ -2,6 +2,7 @@ package com.github.davidmoten.ar;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class Audio {
 						// convert each pair of byte values from the byte
 						// array to an Endian value
 						for (int i = 0; i < n * 2; i += 2) {
-							int value = valueFromTwoBytesEndian(data[i],
+							int value = Util.valueFromTwoBytesEndian(data[i],
 									data[i + 1], isBigEndian);
 							if (sub.isUnsubscribed())
 								return;
@@ -68,18 +69,6 @@ public class Audio {
 			}
 
 		});
-	}
-
-	private static int valueFromTwoBytesEndian(int b1, int b2,
-			boolean isBigEndian) {
-		if (b1 < 0)
-			b1 += 0x100;
-		if (b2 < 0)
-			b2 += 0x100;
-		if (!isBigEndian)
-			return (b1 << 8) + b2;
-		else
-			return b1 + (b2 << 8);
 	}
 
 	private static void printAudioDetails(AudioInputStream audioInputStream,
@@ -155,9 +144,9 @@ public class Audio {
 
 	}
 
-	public static Observable<TimeSeries> timeSeries(InputStream wave,
+	public static Observable<TimeSeries> timeSeries(Observable<Integer> signal,
 			int frameSize, int skip, int numTriFilters, int numMfcCoefficients) {
-		return readSignal(wave)
+		return signal
 		// get frames
 				.buffer(frameSize, skip)
 				// full frames only
@@ -182,6 +171,12 @@ public class Audio {
 				.map(trimSilenceAtBeginningAndEnd())
 				// to TimeSeries
 				.map(TO_TIME_SERIES);
+	}
+
+	public static Observable<TimeSeries> timeSeries(InputStream wave,
+			int frameSize, int skip, int numTriFilters, int numMfcCoefficients) {
+		return timeSeries(readSignal(wave), frameSize, skip, numTriFilters,
+				numMfcCoefficients);
 	}
 
 	private static Func1<List<double[]>, List<double[]>> trimSilenceAtBeginningAndEnd() {
@@ -220,8 +215,52 @@ public class Audio {
 		};
 	}
 
-	public static Observable<byte[]> microphone() {
-		return Observable.create(new MicrophoneOnSubscribe(4096));
+	public static AudioFormat createAudioFormatStandard() {
+		float sampleRate = 16000;
+		int sampleSizeInBits = 8;
+		int channels = 2;
+		boolean signed = true;
+		boolean bigEndian = true;
+		AudioFormat format = new AudioFormat(sampleRate, sampleSizeInBits,
+				channels, signed, bigEndian);
+		return format;
+	}
+
+	public static Observable<byte[]> microphoneRaw(int bufferSize,
+			AudioFormat format) {
+
+		return Observable.create(new MicrophoneOnSubscribe(4096, format));
+	}
+
+	public static Observable<Integer> microphone() {
+		int bufferSize = 4096;
+		final AudioFormat format = createAudioFormatStandard();
+		// get raw bytes from microphone
+		return microphoneRaw(bufferSize, format)
+		// byte pairs as integers
+				.flatMap(new Func1<byte[], Observable<Integer>>() {
+
+					@Override
+					public Observable<Integer> call(byte[] bytes) {
+						return Observable.from(toIntegers(format, bytes));
+					}
+				});
+	}
+
+	public static List<Integer> toIntegers(final AudioFormat format,
+			byte[] bytes) {
+		// Determine the original Endian encoding format
+		boolean isBigEndian = format.isBigEndian();
+		int n = bytes.length / 2;
+		// convert each pair of byte values from the byte
+		// array to an Endian value
+		List<Integer> list = new ArrayList<Integer>(n);
+		for (int i = 0; i < n * 2; i += 2) {
+			int value = Util.valueFromTwoBytesEndian(bytes[i], bytes[i + 1],
+					isBigEndian);
+			list.add(value);
+		}
+		return list;
 	}
 
 	public static final Func1<List<double[]>, TimeSeries> TO_TIME_SERIES = new Func1<List<double[]>, TimeSeries>() {

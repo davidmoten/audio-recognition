@@ -210,8 +210,14 @@ public class AudioTest {
 	}
 
 	public static void main(String[] args) {
-		byte[] b = Audio.microphone().first().toBlocking().single();
-		System.out.println(b[0]);
-	}
+		Audio.timeSeries(Audio.microphone(), 256, 156, 20, 13)
+		//
+				.forEach(new Action1<TimeSeries>() {
 
+					@Override
+					public void call(TimeSeries t) {
+						System.out.println(t.size());
+					}
+				});
+	}
 }
