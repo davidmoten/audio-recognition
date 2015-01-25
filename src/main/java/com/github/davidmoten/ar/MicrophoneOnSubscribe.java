@@ -12,6 +12,8 @@ import rx.Observable.OnSubscribe;
 import rx.Subscriber;
 
 public class MicrophoneOnSubscribe implements OnSubscribe<byte[]> {
+	// see
+	// http://www.developer.com/java/other/article.php/1572251/Java-Sound-Getting-Started-Part-1-Playback.htm#Complete%20Program%20Listings
 
 	private final int bufferSize;
 	private final AudioFormat format;
